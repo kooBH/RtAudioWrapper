@@ -72,7 +72,7 @@ class RtBase {
   public:
   inline RtBase(unsigned int _device, unsigned int _channels,
            unsigned int _sample_rate, unsigned int _shift_size,
-           unsigned int _frame_size);
+           unsigned int _frame_size,unsigned int _input_size=0);
   virtual ~RtBase() { }
 
   virtual void CleanUp() {}
@@ -87,8 +87,13 @@ class RtBase {
 
 RtBase::RtBase(unsigned int _device, unsigned int _channels,
                    unsigned int _sample_rate, unsigned int _shift_size,
-                   unsigned int _frame_size) {
+                   unsigned int _frame_size,unsigned int _input_size) {
+
   shift_size = _shift_size;
+  if(_input_size == 0)
+    input_size = shift_size;
+  else 
+    input_size = _input_size;
   sample_rate = _sample_rate;
   device = _device;
   channels = _channels;
@@ -116,6 +121,8 @@ void RtBase::Start() {
     std::cout << '\n' << e.getMessage() << '\n' << std::endl;
     CleanUp();
   }
+
+  printf("input_size :%d\n",input_size);
   
 }
 

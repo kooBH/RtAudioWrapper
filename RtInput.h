@@ -34,7 +34,7 @@ public:
 
 inline RtInput(unsigned int _device, unsigned int _channels,
                    unsigned int _sample_rate, unsigned int _shift_size,
-                   unsigned int _frame_size);
+                   unsigned int _frame_size,unsigned int _input_size=0);
 inline ~RtInput() { CleanUp(); }
 
   inline void CleanUp();
@@ -62,22 +62,22 @@ int rt_call_back(void * /*outputBuffer*/, void *inputBuffer,
                  unsigned int nBufferFrames, double /*streamTime*/,
                  RtAudioStreamStatus /*status*/, void *data);
 
-
 RtInput::RtInput(unsigned int _device, unsigned int _channels,
                    unsigned int _sample_rate, unsigned int _shift_size,
-                   unsigned int _frame_size):
-          RtBase(_device, _channels,_sample_rate,_shift_size,_frame_size),
+                   unsigned int _frame_size,unsigned int _input_size):
+          RtBase(_device, _channels,_sample_rate,_shift_size,_frame_size,_input_size),
 		  record_time(5.0)
 {
   max_stock = sample_rate * max_stock_second;
   data.max_stock = max_stock;
-#ifdef DEBUG
+#ifndef NDEBUG
   std::cout << "INFO::Init RtInput\n";
   std::cout << " device " << device << "\n";
   std::cout << " sample rate " << sample_rate << "\n";
   std::cout << " channels " << channels << "\n";
   std::cout << " frame_size " << frame_size << "\n";
   std::cout << " shift_size " << shift_size << "\n";
+  std::cout << " input_size " << input_size << "\n";
 #endif
 
   /* Unused
@@ -91,9 +91,6 @@ RtInput::RtInput(unsigned int _device, unsigned int _channels,
   data.buffer = nullptr;
   data.record_inf=true;
   Clear();
-  // input_size may not be same as shift_size
- 
-  input_size = shift_size;
   //input_size = 512;
   RtAudio::StreamOptions options;
   /*
