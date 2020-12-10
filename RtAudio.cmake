@@ -53,8 +53,8 @@ endif ()
 
 
 list(APPEND SRC 
-lib/RtAudio/RtAudio.cpp
-lib/RtAudio/RtAudio.h
+  ${CMAKE_CURRENT_LIST_DIR}/RtAudio/RtAudio.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/RtAudio/RtAudio.h
 	)
 	
 set(API_LIST)
@@ -124,10 +124,10 @@ endif()
 if (RTAUDIO_API_ASIO)
   set(NEED_WIN32LIBS ON)
     list(APPEND SRC
-  lib/RtAudio/asio.cpp
-  lib/RtAudio/asiodrivers.cpp
-  lib/RtAudio/asiolist.cpp
-  lib/RtAudio/iasiothiscallresolver.cpp
+      ${CMAKE_CURRENT_LIST_DIR}/RtAudio/asio.cpp
+      ${CMAKE_CURRENT_LIST_DIR}/RtAudio/asiodrivers.cpp
+      ${CMAKE_CURRENT_LIST_DIR}/RtAudio/asiolist.cpp
+      ${CMAKE_CURRENT_LIST_DIR}/RtAudio/iasiothiscallresolver.cpp
   )
     list(APPEND COMPILE_OPTION "-D__WINDOWS_ASIO__")
   list(APPEND API_LIST "asio")

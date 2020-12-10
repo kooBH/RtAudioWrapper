@@ -6,9 +6,9 @@ include(CheckFunctionExists)
 include(CheckIncludeFiles)
 include(CheckSymbolExists)
 include(CheckTypeSize)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libsamplerate/ClipMode.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libsamplerate/FindFFTW.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libsamplerate/FindSndfile.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/libsamplerate/ClipMode.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/libsamplerate/FindFFTW.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/libsamplerate/FindSndfile.cmake)
 
 #set(SAMPLERATE_SRC
 #	${PROJECT_SOURCE_DIR}/src/samplerate.c
@@ -72,7 +72,7 @@ clip_mode()
 #endif()
 #
 
-configure_file(${PROJECT_SOURCE_DIR}/lib/libsamplerate/config.h.in ${PROJECT_SOURCE_DIR}/lib/libsamplerate/libsamplerate_config.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/libsamplerate/config.h.in ${CMAKE_CURRENT_LIST_DIR}/libsamplerate/libsamplerate_config.h)
 
 #add_library(samplerate ${SAMPLERATE_SRC})
 
@@ -98,13 +98,13 @@ endif()
 
 #endif()
 
-# add for IIP_demo
+# SRC append
 list(APPEND SRC
-    lib/libsamplerate/libsamplerate_config.h  
-    lib/libsamplerate/src_linear.cpp
-    lib/libsamplerate/samplerate.cpp
-    lib/libsamplerate/samplerate.h
-    lib/libsamplerate/float_cast.h
-    lib/libsamplerate/src_sinc.cpp
-    lib/libsamplerate/src_zoh.cpp
-    )
+  ${CMAKE_CURRENT_LIST_DIR}/libsamplerate/libsamplerate_config.h  
+  ${CMAKE_CURRENT_LIST_DIR}/libsamplerate/src_linear.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/libsamplerate/samplerate.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/libsamplerate/samplerate.h
+  ${CMAKE_CURRENT_LIST_DIR}/libsamplerate/float_cast.h
+  ${CMAKE_CURRENT_LIST_DIR}/libsamplerate/src_sinc.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/libsamplerate/src_zoh.cpp
+)
