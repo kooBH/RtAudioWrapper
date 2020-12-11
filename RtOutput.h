@@ -153,7 +153,7 @@ void RtOutput::Resample(float* src_in){
 
 void RtOutput::OpenOutputStream(){
 #if defined __LINUX_ALSA__	
-  options.flags = RTAUDIO_ALSA_USE_DEFAULT | RTAUDIO_HOG_DEVICE;
+  //options.flags = RTAUDIO_ALSA_USE_DEFAULT | RTAUDIO_HOG_DEVICE;
 #endif
   if(!rtaudio->isStreamOpen()){
     try {
