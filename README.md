@@ -1,20 +1,6 @@
 # RtAudioWrapper
 Wrapper classes of RtAudio for myself.  
 
-# Include
-clone this repository to user project diretory  
-
-include   
-```RtBase.h```  
-```RtInput.h```  
-```RtOutput.h```  
-into user project.  
-  
-include   
-```RtAudio.cmake```  
-```Libsamplerate.cmake```  
-in your ```CMakeLists.txt```.  
-
 ### Example for inclusion
 + CMakeLists.txt
 ```cmake
@@ -42,7 +28,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTION} )
 // TODO
 ```
 
-NOTICE :  
+# NOTICE
 + [RtAudio](https://github.com/thestk/rtaudio)   
 A set of C++ classes that provide a common API for realtime audio input/output across Linux (native ALSA, JACK, PulseAudio and OSS), Macintosh OS X (CoreAudio and JACK), and Windows (DirectSound, ASIO, and WASAPI) operating systems.  
 
