@@ -28,6 +28,15 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTION} )
 // TODO
 ```
 
+# TIPS
+When the number of channel is large(ex 16), it is good to use large input_size.   
+Using large input_size is easily done in linux system.   
+But in Windows you need to change driver's buffer size manually, and set input_size param as well.   
+
+# Why do I need to use resampler ? 
+Usally input files I use are 16kHz.    
+And most of output device don't support 16kHz, mostly 48kHz.  
+
 # NOTICE
 + [RtAudio](https://github.com/thestk/rtaudio)   
 A set of C++ classes that provide a common API for realtime audio input/output across Linux (native ALSA, JACK, PulseAudio and OSS), Macintosh OS X (CoreAudio and JACK), and Windows (DirectSound, ASIO, and WASAPI) operating systems.  

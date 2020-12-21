@@ -50,6 +50,8 @@ typedef double MY_TYPE;
 #define FORMAT RTAUDIO_FLOAT64
 */
 
+inline void AudioProbe();
+
 class RtBase {
   protected:
   /*
@@ -78,7 +80,6 @@ class RtBase {
   virtual void CleanUp() {}
   inline void Start();
   inline void Stop();
-  // Wait for buffer
   inline void Wait();
   inline bool IsRunning();
 
@@ -101,7 +102,7 @@ RtBase::RtBase(unsigned int _device, unsigned int _channels,
   read_offset = 0;
 
   ioParams.deviceId = device;
-  ioParams.nChannels = channels;
+  ioParams.nChannels = channels;;
   ioParams.firstChannel = read_offset;
   
 
@@ -149,6 +150,25 @@ bool RtBase::IsRunning() {
     return false;
 }
 
+void AudioProbe(){
+  RtAudio audio;
+  unsigned int devices = audio.getDeviceCount();
+  RtAudio::DeviceInfo info;
+  for (unsigned int i = 0; i < devices; i++) {
+    info = audio.getDeviceInfo(i);
+    if (info.probed == true) {
+        std::cout << "device = " << i << "\n";
+        std::cout << "name = " << info.name << "\n";
+        std::cout << "maximum input channels = " << info.inputChannels << "\n";
+        std::cout << "maximum output channels = " << info.outputChannels << "\n";
+        std::cout << "Samplerates : ";
+        for (auto sr : info.sampleRates)
+          std::cout << sr << " ";
+        std::cout << "\n";
+        std::cout << "----------------------------------------------------------" << "\n";
+    }
+  }
+}
 
 #endif
 
