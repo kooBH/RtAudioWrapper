@@ -34,7 +34,7 @@ Using large input_size is easily done in linux system.
 But in Windows you need to change driver's buffer size manually, and set input_size param as well.   
 
 # Why do I need to use resampler ? 
-Usally input files I use are 16kHz.    
+Usually input files I use are 16kHz.    
 And most of output device don't support 16kHz, mostly 48kHz.  
 
 # NOTICE
