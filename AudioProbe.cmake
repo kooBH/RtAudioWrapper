@@ -1,0 +1,5 @@
+add_executable(AudioProbe  ${CMAKE_CURRENT_SOURCE_DIR}/AudioProbe.cpp ${SRC})
+target_include_directories(AudioProbe 	${INCL})
+target_compile_options(AudioProbe PRIVATE ${COMPILE_OPTION} )
+target_link_libraries(AudioProbe m ${LINKLIBS})
+set_target_properties(AudioProbe PROPERTIES  CXX_STANDARD 14 )
