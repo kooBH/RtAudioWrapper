@@ -70,13 +70,13 @@ public:
   inline void CleanUp();
 };
 
-void errorCallback( RtAudioError::Type type, const std::string &errorText );
+inline void errorCallback( RtAudioError::Type type, const std::string &errorText );
 
-int output_call_back( void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames,
+inline int output_call_back( void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames,
             double /*streamTime*/, RtAudioStreamStatus /*status*/, void *data );
 
 
-int ring_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames,
+inline int ring_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames,
 	double /*streamTime*/, RtAudioStreamStatus /*status*/, void *data);
 
 // Two-channel sawtooth wave generator.
