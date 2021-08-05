@@ -58,7 +58,7 @@ inline ~RtInput() { CleanUp(); }
   InputData data;
 };
 
-int rt_call_back(void * /*outputBuffer*/, void *inputBuffer,
+inline int rt_call_back(void * /*outputBuffer*/, void *inputBuffer,
                  unsigned int nBufferFrames, double /*streamTime*/,
                  RtAudioStreamStatus /*status*/, void *data);
 
