@@ -51,11 +51,17 @@ if (HAVE_GETTIMEOFDAY)
     add_definitions(-DHAVE_GETTIMEOFDAY)
 endif ()
 
-
+# input device
 list(APPEND SRC 
   ${CMAKE_CURRENT_LIST_DIR}/RtAudio/RtAudio.cpp
   ${CMAKE_CURRENT_LIST_DIR}/RtAudio/RtAudio.h
+  ${CMAKE_CURRENT_LIST_DIR}/RtInput.h
+  ${CMAKE_CURRENT_LIST_DIR}/RtOutput.h
+  ${CMAKE_CURRENT_LIST_DIR}/RtBase.h
 	)
+list(APPEND INCL
+	${CMAKE_CURRENT_LIST_DIR}
+)
 	
 set(API_LIST)
 set(PKGCONFIG_REQUIRES)
