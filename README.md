@@ -1,6 +1,12 @@
 # RtAudioWrapper
 Wrapper classes of RtAudio for myself.  
 
+## prerequisite
+
+```
+sudo apt-get -y install libasound2-dev
+```
+
 ### Example for inclusion
 + CMakeLists.txt
 ```cmake

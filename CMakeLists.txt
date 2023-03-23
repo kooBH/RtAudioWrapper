@@ -32,6 +32,7 @@ list(APPEND COMPILE_OPTION
 
 include(RtAudio.cmake)
 include(Libsamplerate.cmake)
+include(AudioProbe.cmake)
 
 add_executable(${PROJECT_NAME}_output test/test_output.cpp ${SRC})
 target_include_directories(${PROJECT_NAME}_output	PRIVATE	${INCL}  )

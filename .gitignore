@@ -11,4 +11,7 @@ CTestTestfile.cmake
 _deps
 
 # temp file
-libsamplerate_config.h
+libsamplerate/libsamplerate_config.h
+
+# build file
+build
