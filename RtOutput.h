@@ -4,18 +4,20 @@
 #include "RtBase.h"
 #include "libsamplerate/samplerate.h"
 #include <atomic>
+#include <queue>
 
 struct OutputData {
   //FILE *fd;
   unsigned int channels;
   long size;
   unsigned int sample_rate;
-  unsigned int frameCounter; // 재생 카운터
-  unsigned int appendCounter;// append 카운터
+  unsigned int frameCounter; // ?�생 카운??
+  unsigned int appendCounter;// append 카운??
   unsigned int totalFrames;
-  float *buf;  //리샘플링 때문에 항상 buffer 는 float.
+  float *buf;  //리샘?�링 ?�문????�� buffer ??float.
   unsigned int size_unit;
   std::atomic<int> stock;
+  std::queue<std::vector<short>> queue;
 };
 
 class RtOutput:public RtBase {
@@ -41,6 +43,7 @@ private:
   inline void InitResampler(int len);
   inline void Resample(float* src_in);
   inline void OpenOutputStream();
+  inline void OpenRealtimeStream();
 
 public:
 
@@ -57,15 +60,17 @@ public:
             unsigned long _format = 0x10);
   inline ~RtOutput();
 
-  /* 재생할 버퍼를 쌓으면서 재생*/
+  /* ?�생??버퍼�??�으면서 ?�생*/
   // WIP
-  inline void PrepStream(int size_buf);
+  inline void PrepStream();
   inline void BufAppend(float *input,int len);
   inline void BufAppend(short *input);
 
-  /* 재생할 내용을 한번에 올려서 재생 */
+  /* ?�생???�용???�번???�려???�생 */
   inline void FullBufLoad(short *buf, long bufsize);
   inline void FullBufLoad(float*buf, long bufsize);
+
+  inline void AppendQueue(short* buf);
 
   inline void CleanUp();
 };
@@ -78,6 +83,10 @@ inline int output_call_back( void *outputBuffer, void * /*inputBuffer*/, unsigne
 
 inline int ring_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames,
 	double /*streamTime*/, RtAudioStreamStatus /*status*/, void *data);
+
+
+int queue_call_back(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames,
+  double /*streamTime*/, RtAudioStreamStatus /*status*/, void* data);
 
 // Two-channel sawtooth wave generator.
 RtOutput::RtOutput(
@@ -98,7 +107,8 @@ RtOutput::RtOutput(
     resampled_output_buffer = nullptr;
 
     data.buf = nullptr;
-    data.size_unit = sizeof(float);
+    //data.size_unit = sizeof(float);
+    data.size_unit = sizeof(short);
     data.channels = channels;
     data.sample_rate = _sample_rate_output;
 
@@ -167,38 +177,45 @@ void RtOutput::OpenOutputStream(){
   }
 }
 
-// WIP
-/* 버퍼 크기를 어떻게 할 것인가?
- * exeption 상황에는 어떤 것들이 있을 것인가? 
- * */
-void RtOutput::PrepStream(int size_buf){
-  data.frameCounter = 0;
-  data.appendCounter = 0;
+void RtOutput::OpenRealtimeStream() {
+  if(!rtaudio->isStreamOpen()){
+    try {
+      rtaudio->openStream(&ioParams, NULL, RTAUDIO_SINT16, sample_rate, &bufferFrames, &queue_call_back, (void *)&data, &options);
+      //rtaudio->openStream(&ioParams, NULL, FORMAT, sample_rate, &bufferFrames, &float_samplerate_convert_output_call_back, (void *)&data, );
+    }
+    catch (RtAudioError& e) {
+      std::cout << "ERROR::" << e.getMessage() << '\n' << std::endl;
+      CleanUp();
+    }
 
-  /* 큰 버퍼 */
-
-  /* 재생과 저장 모두 OutputData.totalFrames 기준으로 동작한다. 
-   *
-   * */
-  ring_output = new float[size_buf * data.channels];
-  data.totalFrames = size_buf*data.channels*data.size_unit;
+    printf("%d\n",bufferFrames );
+  }
 
 }
 
 // WIP
-/*
- * OutputData.buf 를 순환하며 저장
+/* 버퍼 ?�기�??�떻�???것인가?
+ * exeption ?�황?�는 ?�떤 것들???�을 것인가? 
  * */
+void RtOutput::PrepStream(){
+  data.frameCounter = 0;
+  data.appendCounter = 0;
+  data.size = src_data.output_frames*channels;
+
+  OpenRealtimeStream();
+
+}
+
 void RtOutput::BufAppend(float* input, int len ){
   //  InitResampler(len);
   // Resample(buf);
 
-  // TODO 로컬 변수 너무 많나? 
+  // TODO 로컬 변???�무 많나? 
   int size_write =  data.channels * data.size_unit * len ;
   int avail =  data.totalFrames - data.appendCounter;
   int left = size_write - left;
 
-  /* 한 바퀴 돎. */
+  /* ??바�??? */
   if( data.appendCounter + len*data.channels * data.size_unit > data.totalFrames ){
     memcpy(reinterpret_cast<float*>(data.buf) + data.appendCounter,input, avail);
     memcpy(reinterpret_cast<float*>(data.buf),input + avail ,left);
@@ -286,13 +303,13 @@ int output_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nB
 }
 
 /*
- * OutputData.buf를 순환하며 재생. 
+ * OutputData.buf�??�환?�며 ?�생. 
  *
  * */
 int ring_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames,
     double /*streamTime*/, RtAudioStreamStatus /*status*/, void *data){
 
-  /* 순환 하여야한다. */
+  /* ?�환 ?�여?�한?? */
   OutputData *oData = (OutputData*)data;
   unsigned int frames = nBufferFrames;
   int size_play = frames * oData->channels * oData->size_unit;
@@ -305,11 +322,11 @@ int ring_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBuf
     exit(-1);
   }
   
-  /* 한바퀴 다 돎. */
+  /* ?�바?????? */
   if (oData->totalFrames - oData->frameCounter <= size_play) {
-    // 끄트머리에 남은 양
+    // ?�트머리???��? ??
     int left = oData->totalFrames - oData->frameCounter;
-    // 처음에서 채워야할 양
+    // 처음?�서 채워?�할 ??
     int leftover = frames * oData->channels * oData->size_unit - left;
 
     memcpy(outputBuffer, (char*)(oData->buf) + oData->frameCounter, left );
@@ -325,6 +342,32 @@ int ring_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBuf
   return 0;
   
 
+}
+
+
+int queue_call_back(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames,
+  double /*streamTime*/, RtAudioStreamStatus /*status*/, void* data) {
+  //return 1;
+
+  OutputData* oData = (OutputData*)data;
+  unsigned int frames = nBufferFrames;
+
+  if (!oData->queue.empty()) {
+    auto buf = oData->queue.front();
+    oData->queue.pop();
+
+    memcpy(outputBuffer, (char*)(& buf[0]), frames * oData->channels * oData->size_unit);
+  }
+  else {
+  memset(outputBuffer, 0, frames * oData->channels * oData->size_unit);
+  }
+  return 0;
+}
+
+void RtOutput::AppendQueue(short* buf) {
+  std::vector<short> tmp(input_size);
+  memcpy(&tmp[0], buf, sizeof(short) * input_size * channels);
+  data.queue.push(tmp);
 }
 
 void RtOutput::CleanUp() {
@@ -343,4 +386,5 @@ void errorCallback( RtAudioError::Type type, const std::string &errorText ){
   else if ( type != RtAudioError::WARNING )
     throw( RtAudioError( errorText, type ) );
 }
+
 #endif

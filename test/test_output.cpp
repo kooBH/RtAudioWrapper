@@ -3,7 +3,7 @@
 
 
 // Read output of AudioProbe() and set manually
-#define DEVICE_OUTPUT 2
+#define DEVICE_OUTPUT 4
 
 int main() {
   short* buf_1;
@@ -11,18 +11,34 @@ int main() {
   AudioProbe();
 
   WAV input;
-  input.OpenFile("hello_world_ch1.wav");
+  input.OpenFile("input.wav");
   int samplerate_in = input.GetSampleRate();
-  int samplerate_out = 48000;
+  //int samplerate_out = 48000;
+  int samplerate_out = 16000;
+  short * buf = new short[512];
 
-  RtOutput speaker(DEVICE_OUTPUT,1,samplerate_in,samplerate_out,128,512);
+  RtOutput speaker(DEVICE_OUTPUT,1,samplerate_in,samplerate_out,512,512);
 
+  /*
   input.Rewind();
   buf_1 = new short[input.GetSize()];
   fread(buf_1, sizeof(short), input.GetSize(), input.GetFilePointer());
-
   speaker.FullBufLoad(buf_1, input.GetSize());
+  */
+
+  speaker.PrepStream();
   speaker.Start();
+  while (!input.IsEOF()) {
+    input.ReadUnit(buf, 512);
+    speaker.AppendQueue(buf);
+
+    int size_queue = speaker.data.queue.size();
+    if (size_queue > 10) {
+      printf("tic %d\n",size_queue);
+      SLEEP(30);
+    }
+
+  }
   speaker.Wait();
 
   return 0;
