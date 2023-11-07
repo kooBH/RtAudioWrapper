@@ -84,8 +84,7 @@ inline int output_call_back( void *outputBuffer, void * /*inputBuffer*/, unsigne
 inline int ring_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames,
 	double /*streamTime*/, RtAudioStreamStatus /*status*/, void *data);
 
-
-int queue_call_back(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames,
+inline int queue_call_back(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBufferFrames,
   double /*streamTime*/, RtAudioStreamStatus /*status*/, void* data);
 
 // Two-channel sawtooth wave generator.
@@ -365,7 +364,7 @@ int queue_call_back(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBuf
 }
 
 void RtOutput::AppendQueue(short* buf) {
-  std::vector<short> tmp(input_size);
+  std::vector<short> tmp(input_size*channels);
   memcpy(&tmp[0], buf, sizeof(short) * input_size * channels);
   data.queue.push(tmp);
 }
