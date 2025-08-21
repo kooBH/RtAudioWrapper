@@ -78,7 +78,7 @@ class RtBase {
   virtual ~RtBase() { }
 
   virtual void CleanUp() {}
-  inline void Start();
+  inline int Start();
   inline void Stop();
   inline void Wait();
   inline bool IsRunning();
@@ -115,15 +115,15 @@ RtBase::RtBase(unsigned int _device, unsigned int _channels,
   }
 }
 
-void RtBase::Start() {
+int RtBase::Start() {
   try {
     rtaudio->startStream();
+    return 0;
   } catch (RtAudioError &e) {
     std::cout << '\n' << e.getMessage() << '\n' << std::endl;
     CleanUp();
+    return -1;
   }
-
-  printf("input_size :%d\n",input_size);
   
 }
 

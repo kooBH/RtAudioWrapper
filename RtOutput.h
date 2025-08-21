@@ -43,7 +43,7 @@ private:
   inline void InitResampler(int len);
   inline void Resample(float* src_in);
   inline void OpenOutputStream();
-  inline void OpenRealtimeStream();
+  inline int OpenRealtimeStream();
 
 public:
 
@@ -60,18 +60,18 @@ public:
             unsigned long _format = 0x10);
   inline ~RtOutput();
 
-  /* ?¬ìƒ??ë²„í¼ë¥??“ìœ¼ë©´ì„œ ?¬ìƒ*/
-  // WIP
-  inline void PrepStream();
+  // Streaming
+  inline int PrepStream();
   inline void BufAppend(float *input,int len);
   inline void BufAppend(short *input);
 
-  /* ?¬ìƒ???´ìš©???œë²ˆ???¬ë ¤???¬ìƒ */
+  // Batchwise
   inline void FullBufLoad(short *buf, long bufsize);
   inline void FullBufLoad(float*buf, long bufsize);
 
   inline void AppendQueue(short* buf);
 
+  // Close Stream
   inline void CleanUp();
 };
 
@@ -123,7 +123,7 @@ RtOutput::~RtOutput() {
   printf("Rt Output destructor\n");
   if(float_full_buffer)delete[] float_full_buffer;
   if(resampled_output_buffer)delete[] resampled_output_buffer;
-  CleanUp();
+  //CleanUp();
 }
 
 void RtOutput::InitResampler(int len){
@@ -176,15 +176,18 @@ void RtOutput::OpenOutputStream(){
   }
 }
 
-void RtOutput::OpenRealtimeStream() {
+int RtOutput::OpenRealtimeStream() {
   if(!rtaudio->isStreamOpen()){
     try {
       rtaudio->openStream(&ioParams, NULL, RTAUDIO_SINT16, sample_rate, &bufferFrames, &queue_call_back, (void *)&data, &options);
       //rtaudio->openStream(&ioParams, NULL, FORMAT, sample_rate, &bufferFrames, &float_samplerate_convert_output_call_back, (void *)&data, );
+
+      return 0;
     }
     catch (RtAudioError& e) {
       std::cout << "ERROR::" << e.getMessage() << '\n' << std::endl;
       CleanUp();
+      return -1;
     }
 
     printf("%d\n",bufferFrames );
@@ -196,13 +199,13 @@ void RtOutput::OpenRealtimeStream() {
 /* ë²„í¼ ?¬ê¸°ë¥??´ë–»ê²???ê²ƒì¸ê°€?
  * exeption ?í™©?ëŠ” ?´ë–¤ ê²ƒë“¤???ˆì„ ê²ƒì¸ê°€? 
  * */
-void RtOutput::PrepStream(){
+int RtOutput::PrepStream(){
   data.frameCounter = 0;
   data.appendCounter = 0;
   data.size = src_data.output_frames*channels;
 
-  OpenRealtimeStream();
 
+ return OpenRealtimeStream();
 }
 
 void RtOutput::BufAppend(float* input, int len ){
