@@ -83,6 +83,8 @@ class RtBase {
   inline void Wait();
   inline bool IsRunning();
 
+  inline std::string GetDeviceName(int idx);
+
 };
 
 
@@ -170,5 +172,24 @@ void AudioProbe(){
   }
 }
 
+std::string RtBase::GetDeviceName(int idx){
+  RtAudio audio;
+  unsigned int devices = audio.getDeviceCount();
+  RtAudio::DeviceInfo info;
+  if(idx >= devices){
+    std::cout << "ERROR::RtBase::GetDeviceName::Invalid device index\n";
+    return "";
+  }
+  info = audio.getDeviceInfo(idx);
+  if (info.probed == true) {
+      return info.name;
+  }else{
+    std::cout << "ERROR::RtBase::GetDeviceName::Failed to probe device\n";
+    return "";
+  }
+}
+
 #endif
+
+
 

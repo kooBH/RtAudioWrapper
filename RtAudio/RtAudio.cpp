@@ -259,7 +259,7 @@ RtAudio :: RtAudio( RtAudio::Api api )
 
   if ( rtapi_ ) return;
 
-  // It should not be possible to get here because the preprocessor
+  // It should not be possible to get here because the prePlayer
   // definition __RTAUDIO_DUMMY__ is automatically defined if no
   // API-specific definitions are passed to the compiler. But just in
   // case something weird happens, we'll thow an error.
@@ -913,7 +913,7 @@ static OSStatus xrunListener( AudioObjectID /*inDevice*/,
 {
   CoreHandle *handle = (CoreHandle *) handlePointer;
   for ( UInt32 i=0; i<nAddresses; i++ ) {
-    if ( properties[i].mSelector == kAudioDeviceProcessorOverload ) {
+    if ( properties[i].mSelector == kAudioDevicePlayerOverload ) {
       if ( properties[i].mScope == kAudioDevicePropertyScopeInput )
         handle->xrun[1] = true;
       else
@@ -1428,7 +1428,7 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
   }
 
   // Setup the device property listener for over/underload.
-  property.mSelector = kAudioDeviceProcessorOverload;
+  property.mSelector = kAudioDevicePlayerOverload;
   property.mScope = kAudioObjectPropertyScopeGlobal;
   result = AudioObjectAddPropertyListener( id, &property, xrunListener, (void *) handle );
 
@@ -1472,7 +1472,7 @@ void RtApiCore :: closeStream( void )
         kAudioObjectPropertyScopeGlobal,
         kAudioObjectPropertyElementMaster };
 
-      property.mSelector = kAudioDeviceProcessorOverload;
+      property.mSelector = kAudioDevicePlayerOverload;
       property.mScope = kAudioObjectPropertyScopeGlobal;
       if (AudioObjectRemovePropertyListener( handle->id[0], &property, xrunListener, (void *) handle ) != noErr) {
         errorText_ = "RtApiCore::closeStream(): error removing property listener!";
@@ -1495,7 +1495,7 @@ void RtApiCore :: closeStream( void )
         kAudioObjectPropertyScopeGlobal,
         kAudioObjectPropertyElementMaster };
 
-      property.mSelector = kAudioDeviceProcessorOverload;
+      property.mSelector = kAudioDevicePlayerOverload;
       property.mScope = kAudioObjectPropertyScopeGlobal;
       if (AudioObjectRemovePropertyListener( handle->id[1], &property, xrunListener, (void *) handle ) != noErr) {
         errorText_ = "RtApiCore::closeStream(): error removing property listener!";

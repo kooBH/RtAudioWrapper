@@ -361,7 +361,7 @@ int queue_call_back(void* outputBuffer, void* /*inputBuffer*/, unsigned int nBuf
     memcpy(outputBuffer, (char*)(& buf[0]), frames * oData->channels * oData->size_unit);
   }
   else {
-  memset(outputBuffer, 0, frames * oData->channels * oData->size_unit);
+     memset(outputBuffer, 0, frames * oData->channels * oData->size_unit);
   }
   return 0;
 }
