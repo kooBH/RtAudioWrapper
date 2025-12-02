@@ -34,7 +34,7 @@ public:
 
 inline RtInput(unsigned int _device, unsigned int _channels,
                    unsigned int _sample_rate, unsigned int _shift_size,
-                   unsigned int _frame_size,unsigned int _input_size=0);
+                   unsigned int _frame_size=0,unsigned int _input_size=0);
 inline ~RtInput() { CleanUp(); }
 
   inline void CleanUp();

@@ -74,7 +74,7 @@ class RtBase {
   public:
   inline RtBase(unsigned int _device, unsigned int _channels,
            unsigned int _sample_rate, unsigned int _shift_size,
-           unsigned int _frame_size,unsigned int _input_size=0);
+           unsigned int _frame_size=-1,unsigned int _input_size=-1);
   virtual ~RtBase() { }
 
   virtual void CleanUp() {}
@@ -84,6 +84,8 @@ class RtBase {
   inline bool IsRunning();
 
   inline std::string GetDeviceName(int idx);
+
+  int GetInputSize() { return input_size; }
 
 };
 
@@ -97,6 +99,12 @@ RtBase::RtBase(unsigned int _device, unsigned int _channels,
     input_size = shift_size;
   else 
     input_size = _input_size;
+
+  if(_frame_size == 0)
+    frame_size = int(shift_size/4);
+  else
+    frame_size = _frame_size;
+
   sample_rate = _sample_rate;
   device = _device;
   channels = _channels;

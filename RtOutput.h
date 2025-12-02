@@ -11,10 +11,10 @@ struct OutputData {
   unsigned int channels;
   long size;
   unsigned int sample_rate;
-  unsigned int frameCounter; // ?¬ìƒ ì¹´ìš´??
-  unsigned int appendCounter;// append ì¹´ìš´??
+  unsigned int frameCounter;
+  unsigned int appendCounter;
   unsigned int totalFrames;
-  float *buf;  //ë¦¬ìƒ˜?Œë§ ?Œë¬¸????ƒ buffer ??float.
+  float *buf; 
   unsigned int size_unit;
   std::atomic<int> stock;
   std::queue<std::vector<short>> queue;
@@ -54,7 +54,7 @@ public:
             unsigned int _sample_rate_input,
             unsigned int _sample_rate_output, 
 					  unsigned int _shift_size,
-            unsigned int _frame_size,
+            unsigned int _frame_size=-1,
 // static const RtAudioFormat RTAUDIO_SINT16 = 0x2;   // 16-bit signed integer.
 // Default float : 0x10
             unsigned long _format = 0x10);
