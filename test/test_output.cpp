@@ -51,7 +51,6 @@ int GetDefaultOutputDevice() {
   RtAudio::DeviceInfo info;
   for (unsigned int i = 0; i < devices; i++) {
     info = audio.getDeviceInfo(i);
-    if (info.probed == true) {
       //if (info.inputChannels != 0) {
       if (true) {
         std::cout << "device = " << i << "\n";
@@ -65,6 +64,5 @@ int GetDefaultOutputDevice() {
         std::cout << "----------------------------------------------------------" << "\n";
       }
     }
-  }
   return 0;
 }

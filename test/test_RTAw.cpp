@@ -6,7 +6,7 @@
 #include <Windows.h>
 #endif
 
-void main() {
+int main() {
 #if _WIN32
   SetConsoleOutputCP(CP_UTF8);
 #endif
@@ -23,7 +23,18 @@ void main() {
 
 
   wav_in.NewFile("output.wav");
+  printf("-----AudioProbe ----\n");
   RTAw_audioprobe();
+
+  printf("---------\n");
+
+  int size = RTAw_count_devices();
+  printf("Device count : %d\n", size);
+  char name[256];
+  for (int i = 0; i < size; i++) {
+    RTAw_get_device_name(i, name);
+    printf("Device %d : %s\n", i, name);
+  }
 
 
 
@@ -32,7 +43,7 @@ void main() {
 
   printf("Input size : %d -> %d\n", buf_size, RTAw_input_buf_size(RTAObj));
 
-  while(cnt < 1028){
+  while(cnt < 1){
     if (RTAw_input_buffer_length(RTAObj) > buf_size*channels) {
       RTAw_input_buffer_read(RTAObj, buffer);
       wav_in.Append(buffer, buf_size*channels);
@@ -46,5 +57,5 @@ void main() {
 
   delete[] buffer;
 
-
+  return 0;
 }

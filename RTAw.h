@@ -13,6 +13,9 @@
 #endif
 
 DLL_PREFIX void RTAw_audioprobe();
+DLL_PREFIX int RTAw_count_devices();
+DLL_PREFIX void RTAw_get_device_name(int, char*);
+
 DLL_PREFIX void* RTAw_input_construct(int device,int channels,int samplerate,int buf_size);
 DLL_PREFIX void RTAw_input_start(void*);
 DLL_PREFIX int RTAw_input_buf_size(void*);

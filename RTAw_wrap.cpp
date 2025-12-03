@@ -6,6 +6,30 @@ void RTAw_audioprobe() {
   AudioProbe();
 }
 
+int RTAw_count_devices(){
+
+  RtAudio audio;
+  RtAudio::DeviceInfo info;
+
+  std::vector<unsigned int> devices = audio.getDeviceIds();
+
+  return devices.size();
+}
+void RTAw_get_device_name(int index, char* name){
+  RtAudio audio;
+  RtAudio::DeviceInfo info;
+
+  std::vector<unsigned int> devices = audio.getDeviceIds();
+
+  if (index < 0 || index >= devices.size()) {
+    std::cerr << "Invalid device index\n";
+    return;
+  }
+
+  info = audio.getDeviceInfo(devices[index]);
+  std::strcpy(name, info.name.c_str());
+}
+
 void* RTAw_input_construct(int device, int channels, int samplerate, int buf_size) {
   return static_cast<void*>(new RtInput(device, channels, samplerate, buf_size));
 }

@@ -104,15 +104,14 @@ RtInput::RtInput(unsigned int _device, unsigned int _channels,
 
   //options.flags |= RTAUDIO_SCHEDULE_REALTIME;
   //options.flags |= RTAUDIO_MINIMIZE_LATENCY;
-  try {
-	rtaudio->openStream(NULL, &ioParams, FORMAT, sample_rate, &input_size,
-		&rt_call_back, (void *)&data);
-  } catch (RtAudioError &e) {
-    std::cout << "ERROR::" << e.getMessage() << '\n' << std::endl;
-    CleanUp();
-    throw std::runtime_error(e.getMessage());
-    return;
-  }
+	if(rtaudio->openStream(NULL, &ioParams, FORMAT, sample_rate, &input_size,
+		&rt_call_back, (void *)&data)){
+		// Stream opened successfully
+	} else {
+		std::cout << "ERROR::Cannot open input stream\n" << std::endl;
+		CleanUp();
+		return;
+	}
 
 #ifdef DEBUG
   printf("input_size : %d\n", input_size);

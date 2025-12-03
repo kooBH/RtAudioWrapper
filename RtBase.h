@@ -116,34 +116,23 @@ RtBase::RtBase(unsigned int _device, unsigned int _channels,
   ioParams.firstChannel = read_offset;
   
 
-  try {
-    rtaudio = new RtAudio();
- } catch (RtAudioError &e) {
-    std::cout << "ERROR::" << e.getMessage() << '\n' << std::endl;
-    CleanUp();
-    return;
-  }
+  rtaudio = new RtAudio();
 }
 
 int RtBase::Start() {
-  try {
-    rtaudio->startStream();
+  if(rtaudio->startStream()){
+      std::cout << "ERROR::Cannot start stream\n" << std::endl;
+      CleanUp();
+      return -1;
+    }
     return 0;
-  } catch (RtAudioError &e) {
-    std::cout << '\n' << e.getMessage() << '\n' << std::endl;
-    CleanUp();
-    return -1;
-  }
-  
 }
 
 void RtBase::Stop(){
- try {
-    rtaudio->stopStream();
-  } catch (RtAudioError &e) {
-    std::cout << "\nRtAudioError::" << e.getMessage() << '\n' << std::endl;
-    CleanUp();
-  }
+    if(rtaudio->stopStream()){
+      std::cout << "ERROR::Cannot stop stream\n" << std::endl;
+      CleanUp();
+    }
 }
 
 void RtBase::Wait() {
@@ -162,21 +151,54 @@ bool RtBase::IsRunning() {
 
 void AudioProbe(){
   RtAudio audio;
-  unsigned int devices = audio.getDeviceCount();
   RtAudio::DeviceInfo info;
-  for (unsigned int i = 0; i < devices; i++) {
-    info = audio.getDeviceInfo(i);
-    if (info.probed == true) {
-        std::cout << "device = " << i << "\n";
-        std::cout << "name = " << info.name << "\n";
-        std::cout << "maximum input channels = " << info.inputChannels << "\n";
-        std::cout << "maximum output channels = " << info.outputChannels << "\n";
-        std::cout << "Samplerates : ";
-        for (auto sr : info.sampleRates)
-          std::cout << sr << " ";
-        std::cout << "\n";
-        std::cout << "----------------------------------------------------------" << "\n";
+
+  std::cout << "\nAPI: " << RtAudio::getApiDisplayName(audio.getCurrentApi()) << std::endl;
+
+  std::vector<unsigned int> devices = audio.getDeviceIds();
+  std::cout << "\nFound " << devices.size() << " device(s) ...\n";
+
+  for (unsigned int i=0; i<devices.size(); i++) {
+    info = audio.getDeviceInfo( devices[i] );
+
+    std::cout << "\nDevice Name = " << info.name << '\n';
+    std::cout << "Device Index = " << i << '\n';
+    std::cout << "Output Channels = " << info.outputChannels << '\n';
+    std::cout << "Input Channels = " << info.inputChannels << '\n';
+    std::cout << "Duplex Channels = " << info.duplexChannels << '\n';
+    if ( info.isDefaultOutput ) std::cout << "This is the default output device.\n";
+    else std::cout << "This is NOT the default output device.\n";
+    if ( info.isDefaultInput ) std::cout << "This is the default input device.\n";
+    else std::cout << "This is NOT the default input device.\n";
+    if ( info.nativeFormats == 0 )
+      std::cout << "No natively supported data formats(?)!";
+    else {
+      std::cout << "Natively supported data formats:\n";
+      if ( info.nativeFormats & RTAUDIO_SINT8 )
+        std::cout << "  8-bit int\n";
+      if ( info.nativeFormats & RTAUDIO_SINT16 )
+        std::cout << "  16-bit int\n";
+      if ( info.nativeFormats & RTAUDIO_SINT24 )
+        std::cout << "  24-bit int\n";
+      if ( info.nativeFormats & RTAUDIO_SINT32 )
+        std::cout << "  32-bit int\n";
+      if ( info.nativeFormats & RTAUDIO_FLOAT32 )
+        std::cout << "  32-bit float\n";
+      if ( info.nativeFormats & RTAUDIO_FLOAT64 )
+        std::cout << "  64-bit float\n";
     }
+    if ( info.sampleRates.size() < 1 )
+      std::cout << "No supported sample rates found!";
+    else {
+      std::cout << "Supported sample rates = ";
+      for (unsigned int j=0; j<info.sampleRates.size(); j++)
+        std::cout << info.sampleRates[j] << " ";
+    }
+    std::cout << std::endl;
+    if ( info.preferredSampleRate == 0 )
+      std::cout << "No preferred sample rate found!" << std::endl;
+    else
+      std::cout << "Preferred sample rate = " << info.preferredSampleRate << std::endl;
   }
 }
 
@@ -189,12 +211,7 @@ std::string RtBase::GetDeviceName(int idx){
     return "";
   }
   info = audio.getDeviceInfo(idx);
-  if (info.probed == true) {
-      return info.name;
-  }else{
-    std::cout << "ERROR::RtBase::GetDeviceName::Failed to probe device\n";
-    return "";
-  }
+  return info.name;
 }
 
 #endif

@@ -7,7 +7,7 @@
 */
 
 /* Name of package */
-#define PACKAGE "Dual"
+#define PACKAGE "RtAudioTest"
 
 /* Version number of package */
 #define VERSION ""

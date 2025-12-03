@@ -75,7 +75,7 @@ public:
   inline void CleanUp();
 };
 
-inline void errorCallback( RtAudioError::Type type, const std::string &errorText );
+//inline void errorCallback( RtAudioError::Type type, const std::string &errorText );
 
 inline int output_call_back( void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames,
             double /*streamTime*/, RtAudioStreamStatus /*status*/, void *data );
@@ -165,39 +165,34 @@ void RtOutput::OpenOutputStream(){
   //options.flags = RTAUDIO_ALSA_USE_DEFAULT | RTAUDIO_HOG_DEVICE;
 #endif
   if(!rtaudio->isStreamOpen()){
-    try {
-      rtaudio->openStream(&ioParams, NULL, format, sample_rate, &bufferFrames, &output_call_back, (void *)&data, &options);
+      if(rtaudio->openStream(&ioParams, NULL, format, sample_rate, &bufferFrames, &output_call_back, (void *)&data, &options)){
+        std::cout << "ERROR::Cannot open output stream\n" << std::endl;
+        CleanUp();
+
+      }
       //rtaudio->openStream(&ioParams, NULL, FORMAT, sample_rate, &bufferFrames, &float_samplerate_convert_output_call_back, (void *)&data, );
-    }
-    catch (RtAudioError& e) {
-      std::cout << "ERROR::" << e.getMessage() << '\n' << std::endl;
-      CleanUp();
-    }
   }
 }
 
 int RtOutput::OpenRealtimeStream() {
   if(!rtaudio->isStreamOpen()){
-    try {
-      rtaudio->openStream(&ioParams, NULL, RTAUDIO_SINT16, sample_rate, &bufferFrames, &queue_call_back, (void *)&data, &options);
+      if(rtaudio->openStream(&ioParams, NULL, RTAUDIO_SINT16, sample_rate, &bufferFrames, &queue_call_back, (void *)&data, &options)){
+        std::cout << "ERROR::Cannot open output stream\n" << std::endl;
+        CleanUp();
+        return -1;
+      }
       //rtaudio->openStream(&ioParams, NULL, FORMAT, sample_rate, &bufferFrames, &float_samplerate_convert_output_call_back, (void *)&data, );
 
       return 0;
     }
-    catch (RtAudioError& e) {
-      std::cout << "ERROR::" << e.getMessage() << '\n' << std::endl;
-      CleanUp();
-      return -1;
-    }
 
     printf("%d\n",bufferFrames );
-  }
-
+    return 0;
 }
 
 // WIP
-/* 버퍼 ?�기�??�떻�???것인가?
- * exeption ?�황?�는 ?�떤 것들???�을 것인가? 
+/* 버퍼 ?�기�??�떻�???것인가?
+ * exeption ?�황?�는 ?�떤 것들???�을 것인가? 
  * */
 int RtOutput::PrepStream(){
   data.frameCounter = 0;
@@ -212,12 +207,12 @@ void RtOutput::BufAppend(float* input, int len ){
   //  InitResampler(len);
   // Resample(buf);
 
-  // TODO 로컬 변???�무 많나? 
+  // TODO 로컬 변???�무 많나? 
   int size_write =  data.channels * data.size_unit * len ;
   int avail =  data.totalFrames - data.appendCounter;
   int left = size_write - left;
 
-  /* ??바�??? */
+  /* ??바�??? */
   if( data.appendCounter + len*data.channels * data.size_unit > data.totalFrames ){
     memcpy(reinterpret_cast<float*>(data.buf) + data.appendCounter,input, avail);
     memcpy(reinterpret_cast<float*>(data.buf),input + avail ,left);
@@ -305,13 +300,13 @@ int output_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nB
 }
 
 /*
- * OutputData.buf�??�환?�며 ?�생. 
+ * OutputData.buf�??�환?�며 ?�생. 
  *
  * */
 int ring_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames,
     double /*streamTime*/, RtAudioStreamStatus /*status*/, void *data){
 
-  /* ?�환 ?�여?�한?? */
+  /* ?�환 ?�여?�한?? */
   OutputData *oData = (OutputData*)data;
   unsigned int frames = nBufferFrames;
   int size_play = frames * oData->channels * oData->size_unit;
@@ -324,11 +319,11 @@ int ring_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBuf
     exit(-1);
   }
   
-  /* ?�바?????? */
+  /* ?�바?????? */
   if (oData->totalFrames - oData->frameCounter <= size_play) {
-    // ?�트머리???��? ??
+    // ?�트머리???��? ??
     int left = oData->totalFrames - oData->frameCounter;
-    // 처음?�서 채워?�할 ??
+    // 처음?�서 채워?�할 ??
     int leftover = frames * oData->channels * oData->size_unit - left;
 
     memcpy(outputBuffer, (char*)(oData->buf) + oData->frameCounter, left );
@@ -379,6 +374,7 @@ void RtOutput::CleanUp() {
   delete rtaudio;
 }
 
+/* Deprecated ? 
 void errorCallback( RtAudioError::Type type, const std::string &errorText ){
   // This example error handling function does exactly the same thing
   // as the embedded RtAudio::error() function.
@@ -388,5 +384,6 @@ void errorCallback( RtAudioError::Type type, const std::string &errorText ){
   else if ( type != RtAudioError::WARNING )
     throw( RtAudioError( errorText, type ) );
 }
+*/
 
 #endif
