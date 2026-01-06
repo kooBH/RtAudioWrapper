@@ -97,7 +97,7 @@ RtOutput::RtOutput(
     unsigned int _frame_size,
     unsigned long _format
     )
-  :RtBase(_device, _channels, _sample_rate_output,_shift_size,_frame_size){
+  :RtBase(_device, _channels, _sample_rate_output,_shift_size,_frame_size,_shift_size){
     sample_rate_input = _sample_rate_input;
     sample_rate = _sample_rate_output;
     format = _format;
@@ -191,7 +191,7 @@ int RtOutput::OpenRealtimeStream() {
 }
 
 // WIP
-/* 버퍼 ?�기�??�떻�???것인가?
+/* 버퍼 ?�기�??�떻�???것인가?
  * exeption ?�황?�는 ?�떤 것들???�을 것인가? 
  * */
 int RtOutput::PrepStream(){
@@ -300,7 +300,7 @@ int output_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nB
 }
 
 /*
- * OutputData.buf�??�환?�며 ?�생. 
+ * OutputData.buf�??�환?�며 ?�생. 
  *
  * */
 int ring_call_back(void *outputBuffer, void * /*inputBuffer*/, unsigned int nBufferFrames,
