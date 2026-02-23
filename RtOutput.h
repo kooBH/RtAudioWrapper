@@ -368,10 +368,13 @@ void RtOutput::AppendQueue(short* buf) {
 }
 
 void RtOutput::CleanUp() {
+  if (rtaudio) {
 
-  if (rtaudio->isStreamOpen())
-    rtaudio->closeStream();
-  delete rtaudio;
+    if (rtaudio->isStreamOpen())
+      rtaudio->closeStream();
+    delete rtaudio;
+    rtaudio = nullptr;
+  }
 }
 
 /* Deprecated ? 

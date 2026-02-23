@@ -3,7 +3,7 @@
 #include "RtOutput.h"
 
 void RTAw_audioprobe() {
-  AudioProbe();
+  RtBase::AudioProbe();
 }
 
 int RTAw_count_devices(){

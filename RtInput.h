@@ -56,6 +56,8 @@ inline ~RtInput() { CleanUp(); }
   inline int Convert2ShiftedArrayInverted(double **arr);
 
   InputData data;
+
+  int BufferAvailable() { return data.stock.load(); }
 };
 
 inline int rt_call_back(void * /*outputBuffer*/, void *inputBuffer,
@@ -75,8 +77,6 @@ RtInput::RtInput(unsigned int _device, unsigned int _channels,
   std::cout << " device " << device << "\n";
   std::cout << " sample rate " << sample_rate << "\n";
   std::cout << " channels " << channels << "\n";
-  std::cout << " frame_size " << frame_size << "\n";
-  std::cout << " shift_size " << shift_size << "\n";
   std::cout << " input_size " << input_size << "\n";
 #endif
 
@@ -255,12 +255,14 @@ int RtInput::Convert2Array(double **arr) {
 }
 
 void RtInput::CleanUp() {
-  if (rtaudio->isStreamOpen())
-    rtaudio->closeStream();
-  if (data.buffer)
-    free(data.buffer);
-  if (rtaudio)
+  if (rtaudio) {
+    if (rtaudio->isStreamOpen())
+      rtaudio->closeStream();
+    if (data.buffer)
+      free(data.buffer);
     delete rtaudio;
+    rtaudio = nullptr;
+  }
 }
 
 int RtInput::Convert2ShiftedArrayInverted(double **arr){

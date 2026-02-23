@@ -17,3 +17,6 @@ libsamplerate/libsamplerate_config.h
 build
 
 .DS_Store
+
+
+libsamplerate/libsamplerate_config.h

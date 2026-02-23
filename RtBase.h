@@ -50,7 +50,6 @@ typedef double MY_TYPE;
 #define FORMAT RTAUDIO_FLOAT64
 */
 
-inline void AudioProbe();
 
 class RtBase {
   protected:
@@ -67,7 +66,7 @@ class RtBase {
   unsigned int sample_rate;
   unsigned int read_offset;
   //adc,dac -> rtaudio
-  RtAudio* rtaudio;
+  RtAudio* rtaudio = nullptr;
   //iParams,oParams -> ioParams
   RtAudio::StreamParameters ioParams;
 
@@ -82,8 +81,9 @@ class RtBase {
   inline void Stop();
   inline void Wait();
   inline bool IsRunning();
-
-  inline std::string GetDeviceName(int idx);
+  inline bool IsOpen();
+  inline static void AudioProbe();
+  inline static std::string GetDeviceName(int idx);
 
   int GetInputSize() { return input_size; }
 
@@ -145,11 +145,17 @@ void RtBase::Wait() {
 bool RtBase::IsRunning() {
   if (rtaudio->isStreamRunning())
     return true;
-  else
-    return false;
 }
 
-void AudioProbe(){
+bool RtBase::IsOpen() {
+  if (!rtaudio)return false;
+
+  return rtaudio->isStreamOpen();
+}
+
+
+
+void RtBase::AudioProbe(){
   RtAudio audio;
   RtAudio::DeviceInfo info;
 
@@ -162,7 +168,7 @@ void AudioProbe(){
     info = audio.getDeviceInfo( devices[i] );
 
     std::cout << "\nDevice Name = " << info.name << '\n';
-    std::cout << "Device Index = " << i << '\n';
+    std::cout << "Device Index = " << info.ID << '\n';
     std::cout << "Output Channels = " << info.outputChannels << '\n';
     std::cout << "Input Channels = " << info.inputChannels << '\n';
     std::cout << "Duplex Channels = " << info.duplexChannels << '\n';
@@ -213,6 +219,7 @@ std::string RtBase::GetDeviceName(int idx){
   info = audio.getDeviceInfo(idx);
   return info.name;
 }
+
 
 #endif
 

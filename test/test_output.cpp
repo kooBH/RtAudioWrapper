@@ -8,7 +8,7 @@
 int main() {
   short* buf_1;
 
-  AudioProbe();
+  RtBase::AudioProbe();
 
   WAV input;
   input.OpenFile("input.wav");

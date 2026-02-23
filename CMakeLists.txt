@@ -40,6 +40,16 @@ include(RtAudio.cmake)
 include(Libsamplerate.cmake)
 
 
+
+
+## RtAudio C++ Input Test
+add_executable(RTA_in_test test/test_RTA_input.cpp ${SRC})
+target_include_directories(RTA_in_test	PRIVATE	${INCL}  )
+
+target_compile_options(RTA_in_test PRIVATE ${COMPILE_OPTION} )
+set_target_properties(RTA_in_test PROPERTIES  CXX_STANDARD 14 )
+
+
 ## RtAudioWrapper Library
 add_library(RTAw SHARED 
 	${SRC} 
@@ -49,7 +59,7 @@ target_link_libraries(RTAw ${LINKLIBS})
 target_compile_options(RTAw PRIVATE ${COMPILE_OPTION} )
 set_target_properties(RTAw PROPERTIES  CXX_STANDARD 17 )
 
-## RtAduioWrapper Test
+## RtAduio C-Wrapper Test
 add_executable(RTAw_test test/test_RTAw.cpp )
 target_include_directories(RTAw_test	PRIVATE	${INCL}  )
 
